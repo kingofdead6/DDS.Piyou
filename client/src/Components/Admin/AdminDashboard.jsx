@@ -1,13 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+// src/pages/admin/AdminDashboard.jsx
+import { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { gsap } from "gsap";
 import { jwtDecode } from "jwt-decode";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { LanguageContext } from "../context/LanguageContext";
+import { translations } from "../../../translations";
 
 export default function AdminDashboard() {
+  const { lang } = useContext(LanguageContext);
+  const t = translations[lang].adminDashboard;
+  const isRTL = lang === "ar";
   const navigate = useNavigate();
+
   const [userType, setUserType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const titleRef = useRef(null);
@@ -15,122 +21,121 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkToken = () => {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (token) {
-        try {
-          const decoded = jwtDecode(token);
-          if (decoded.usertype === "admin" || decoded.usertype === "superadmin") {
-            setUserType(decoded.usertype);
-          } else {
-            toast.error("Unauthorized access.", { theme: "light" });
-            navigate("/login");
-          }
-        } catch (error) {
-          toast.error("Invalid token. Please log in again.", { theme: "light" });
+      if (!token) {
+        toast.error(t.loginRequired);
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.usertype === "admin" || decoded.usertype === "superadmin") {
+          setUserType(decoded.usertype);
+        } else {
+          toast.error(t.unauthorized);
           navigate("/login");
         }
-      } else {
-        toast.error("Please log in to access the dashboard.", { theme: "light" });
+      } catch (error) {
+        toast.error(t.invalidToken);
         navigate("/login");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    const timer = setTimeout(checkToken, 100);
-    return () => clearTimeout(timer);
-  }, [navigate]);
-
-  // Subtle floating title animation
-
+    checkToken();
+  }, [navigate, t]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
-    toast.success("Logged out successfully", { theme: "light" });
+    toast.success(t.logoutSuccess);
     navigate("/login");
   };
 
   const adminSections = [
-    { path: "/admin/orders", title: "Manage Orders", description: "View and update order statuses" },
-    { path: "/admin/products", title: "Manage Products", description: "Create, update, and delete products" },
-    { path: "/admin/announcements", title: "Manage Announcements", description: "Create and manage announcements" },
-    { path: "/admin/reviews", title: "Manage Reviews", description: "Moderate and respond to reviews" },
+    { path: "/admin/orders", title: t.manageOrders, description: t.manageOrdersDesc },
+    { path: "/admin/products", title: t.manageProducts, description: t.manageProductsDesc },
   ];
 
   const superadminSections = [
     ...adminSections,
-    { path: "/admin/users", title: "Manage Users", description: "Create, update, and delete user accounts" },
-    { path: "/admin/categories", title: "Manage Categories", description: "Add and update delivery area prices" },
-    { path: "/admin/delivery-areas", title: "Manage Delivery Areas", description: "Add and update delivery area prices" },
-
+    { path: "/admin/users", title: t.manageUsers, description: t.manageUsersDesc },
+    { path: "/admin/categories", title: t.manageCategories, description: t.manageCategoriesDesc },
+    { path: "/admin/delivery-areas", title: t.manageDeliveryAreas, description: t.manageDeliveryAreasDesc },
   ];
 
   const sections = userType === "superadmin" ? superadminSections : adminSections;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <p className="text-lg text-gray-600">Loading dashboard...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-xl font-light text-gray-600">{t.loading}</p>
       </div>
     );
   }
 
   return (
     <>
-      <ToastContainer position="top-right" theme="light" autoClose={3000} />
-
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7 }}
-        className="min-h-screen py-20 mt-20"  
+        className="min-h-screen py-20 pt-32 "
+        dir={isRTL ? "rtl" : "ltr"}
       >
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-20">
             <motion.h1
               ref={titleRef}
-              initial={{ opacity: 0, y: -30 }}
+              initial={{ opacity: 0, y: -40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-5xl font-light tracking-wide text-gray-900"
+              transition={{ duration: 0.9, ease: "easeOut" }}
+              className="text-6xl font-extralight tracking-widest text-gray-900"
             >
-              Admin Dashboard
+              {userType === "superadmin" ? t.welcomeSuperAdmin : t.welcomeAdmin}
             </motion.h1>
-            <p className="mt-4 text-lg text-gray-600 font-light">
-              Welcome back, {userType === "superadmin" ? "Super Admin" : "Administrator"}
-            </p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6 text-xl text-gray-600 font-light"
+            >
+              DDS.PIYOU — لوحة التحكم
+            </motion.p>
           </div>
 
           {/* Dashboard Grid */}
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial={{ opacity: 0, y: 40 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
             {sections.map((section, index) => (
               <motion.div
                 key={section.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                whileHover={{ y: -12, scale: 1.03 }}
                 className="group"
               >
                 <Link to={section.path}>
-                  <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-between">
+                  <div className="bg-white rounded-3xl p-10 shadow-lg hover:shadow-2xl transition-all duration-400 h-full flex flex-col justify-between border border-gray-100">
                     <div>
-                      <h2 className="text-2xl font-medium text-gray-900 group-hover:text-black transition-colors">
+                      <h2 className="text-3xl font-medium text-gray-900 group-hover:text-black transition-colors">
                         {section.title}
                       </h2>
-                      <p className="mt-3 text-gray-600 font-light leading-relaxed">
+                      <p className="mt-5 text-gray-600 font-light leading-relaxed text-lg">
                         {section.description}
                       </p>
                     </div>
-                    <div className="mt-6 flex justify-end">
-                      <span className="inline-flex items-center text-sm font-medium text-gray-500 group-hover:text-black transition-colors">
-                        Manage
-                        <svg className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="mt-10 flex justify-end">
+                      <span className="inline-flex items-center text-lg font-semibold text-gray-600 group-hover:text-black transition-all">
+                        {t.manage}
+                        <svg className={`w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform ${isRTL ? "mr-3 ml-0 rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </span>
@@ -142,12 +147,12 @@ export default function AdminDashboard() {
           </motion.div>
 
           {/* Logout Button */}
-          <div className="mt-16 text-center">
+          <div className="mt-24 text-center">
             <button
               onClick={handleLogout}
-              className="px-8 py-4 border border-gray-300 bg-red-500 rounded-md text-white hover:bg-red-600 hover:border-gray-400 transition-all duration-200 font-medium"
+              className="cursor-pointer px-12 py-5 bg-red-600 text-white text-xl font-medium rounded-2xl hover:bg-red-700 transition-all duration-300 shadow-xl hover:shadow-2xl"
             >
-              Logout
+              {t.logout}
             </button>
           </div>
         </div>

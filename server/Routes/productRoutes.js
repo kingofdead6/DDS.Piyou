@@ -10,7 +10,12 @@ import {
   toggleShowOnProductsPage,
   toggleShowOnTrendingPage,
   toggleShowOnBestOffersPage,
-  toggleShowOnSpecialsPage
+  toggleShowOnSpecialsPage,
+  getFeaturedProducts,
+  getTrendingProducts,
+  getBestOffers,
+  getSpecials,
+  getSimilarProducts
 } from '../Controllers/product.js';
 
 import { protect, admin } from '../Middleware/auth.js';
@@ -22,8 +27,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 // ===== PUBLIC ROUTES =====
 router.get('/', getProducts);
 router.get('/admin-products', protect, admin, getAdminProducts);
+router.get('/featured', getFeaturedProducts);
+router.get('/trending', getTrendingProducts);
+router.get('/best-offers', getBestOffers);
+router.get('/specials', getSpecials);
 router.get('/:id', getProductById);
-
+router.get('/similar', getSimilarProducts);
 // ===== ADMIN ROUTES =====
 router.post('/', protect, admin, upload.array('images', 10), createProduct);
 router.put('/:id', protect, admin, upload.array('images', 10), updateProduct);

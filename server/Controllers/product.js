@@ -216,3 +216,88 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   await Product.deleteOne({ _id: req.params.id });
   res.status(200).json({ message: 'Product deleted' });
 });
+
+
+export const getFeaturedProducts = asyncHandler(async (req, res) => {
+  const { category } = req.query;
+
+  const query = { showOnProductsPage: true };
+  if (category && category !== "All Shoes") {
+    query.category = category;
+  }
+
+  const products = await Product.find(query).lean();
+
+  // Process stock info but NEVER hide the product
+  const processedProducts = products.map(product => {
+    const availableColors = product.availableColors.filter(color =>
+      color.sizes.some(size => size.quantity > 0)
+    );
+
+    const hasStock = availableColors.length > 0;
+
+    return {
+      ...product,
+      availableColors: hasStock ? availableColors : product.availableColors, // keep all colors if sold out
+      hasStock // useful for frontend badges
+    };
+  });
+
+  res.status(200).json(processedProducts);
+});
+
+// Get Trending Products
+export const getTrendingProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({ showOnTrendingPage: true }).lean();
+  
+  const processed = products.map(product => ({
+    ...product,
+    availableColors: product.availableColors.filter(color =>
+      color.sizes.some(size => size.quantity > 0)
+    )
+  })).filter(p => p.availableColors.length > 0); // only in-stock
+
+  res.json(processed);
+});
+
+// Get Best Offers
+export const getBestOffers = asyncHandler(async (req, res) => {
+  const products = await Product.find({ showOnBestOffersPage: true }).lean();
+  
+  const processed = products.map(product => ({
+    ...product,
+    availableColors: product.availableColors.filter(color =>
+      color.sizes.some(size => size.quantity > 0)
+    )
+  })).filter(p => p.availableColors.length > 0);
+
+  res.json(processed);
+});
+
+// Get Specials
+export const getSpecials = asyncHandler(async (req, res) => {
+  const products = await Product.find({ showOnSpecialsPage: true }).lean();
+  
+  const processed = products.map(product => ({
+    ...product,
+    availableColors: product.availableColors.filter(color =>
+      color.sizes.some(size => size.quantity > 0)
+    )
+  })).filter(p => p.availableColors.length > 0);
+
+  res.json(processed);
+});
+
+export const getSimilarProducts = asyncHandler(async (req, res) => {
+  const { id, category } = req.query;
+  
+  const products = await Product.find({ 
+    category,
+    _id: { $ne: id },
+    "availableColors.sizes.quantity": { $gt: 0 }
+  })
+  .lean()
+  .limit(12);
+
+  res.json(products);
+});

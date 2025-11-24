@@ -1,46 +1,67 @@
+// src/Components/Home/ProductsCarousel.jsx
+import { useState, useEffect, useContext } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
+import axios from "axios";
+import { API_BASE_URL } from "../../../api";
+import { Link } from "react-router-dom";
+import { LanguageContext } from "../context/LanguageContext";
+import { translations } from "../../../translations";
 
-const products = [
-  {
-    id: 1,
-    name: "Air Motion X",
-    image: "https://images.unsplash.com/photo-1606813902914-4f2fdbb8f7ad",
-    link: "/product/1",
-  },
-  {
-    id: 2,
-    name: "Urban Runner",
-    image: "https://images.unsplash.com/photo-1528701800489-20be3c39b83c",
-    link: "/product/2",
-  },
-  {
-    id: 3,
-    name: "Cloud Step",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
-    link: "/product/3",
-  },
-  {
-    id: 4,
-    name: "Beige Classic",
-    image: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2",
-    link: "/product/4",
-  },
-  {
-    id: 5,
-    name: "Street Boost",
-    image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5",
-    link: "/product/5",
-  },
-];
+const ProductCarousel = ({ titleKey, reverse = false, endpoint }) => {
+  const { lang } = useContext(LanguageContext);
+  const tCarousel = translations[lang].productCarousel;
+  const tHome = translations[lang].home; // For homepage-specific titles
+  const isRTL = lang === "ar";
 
-export default function ProductCarousel({ title, reverse = false }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Complete title mapping — supports ALL your current sections
+  const titleMap = {
+    // From HomePage
+    trendingProducts: tHome.trendingProducts,
+    bestOffers: tHome.bestOffers,
+    specialOffers: tHome.specialOffers,
+
+    // Future or other carousels (optional)
+    featuredMen: tCarousel.featuredMen,
+    featuredWomen: tCarousel.featuredWomen,
+    newArrivals: tCarousel.newArrivals,
+  };
+
+  const title = titleMap[titleKey] || titleKey; // Fallback if key missing
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/products/${endpoint}`);
+        setProducts(res.data);
+      } catch (err) {
+        console.error(`Failed to load products for ${titleKey}`, err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [endpoint, titleKey]);
+
+  if (loading) {
+    return (
+      <section className="py-20 text-center" dir={isRTL ? "rtl" : "ltr"}>
+        <h2 className="text-4xl font-bold text-[#2d2a26] mb-10">{title}</h2>
+        <p className="text-xl text-gray-600">{tCarousel.loading}</p>
+      </section>
+    );
+  }
+
+  if (products.length === 0) return null;
+
   return (
-    <section className="py-20">
-      <h2 className="text-4xl font-bold text-center mb-10 text-[#2d2a26]">
+    <section className="py-20 bg-[#f8f5f2]" dir={isRTL ? "rtl" : "ltr"}>
+      <h2 className="text-4xl font-bold text-center mb-12 text-[#2d2a26]">
         {title}
       </h2>
 
@@ -48,37 +69,51 @@ export default function ProductCarousel({ title, reverse = false }) {
         modules={[Autoplay, Navigation]}
         spaceBetween={30}
         slidesPerView={4}
-        loop={true}
+        loop={products.length > 4}
         navigation
         autoplay={{
-          delay: 2500,
+          delay: 3000,
           disableOnInteraction: false,
-          reverseDirection: reverse,
+          reverseDirection: reverse || isRTL, // Natural flow in Arabic
+        }}
+        dir={isRTL ? "rtl" : "ltr"}
+        breakpoints={{
+          320: { slidesPerView: 1 },
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+          1280: { slidesPerView: 4 },
         }}
         className="px-8"
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id}>
-            <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition-all duration-300">
-              <img
-                src={product.image}
-                className="w-full h-60 object-cover rounded-xl"
-                alt={product.name}
-              />
-
-              <h3 className="text-lg font-semibold mt-4">
-                {product.name}
-              </h3>
-
-              <a href={product.link}>
-                <button className="mt-4 w-full bg-black text-white py-2 rounded-xl hover:bg-[#6f5f4b] transition">
-                  View Details
-                </button>
-              </a>
-            </div>
+          <SwiperSlide key={product._id}>
+            <Link to={`/product/${product._id}`}>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition-all duration-300 cursor-pointer group">
+                <div className="overflow-hidden">
+                  <img
+                    src={product.images[0]?.image || "/placeholder.jpg"}
+                    alt={product.name}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-6 text-center">
+                  <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3.5rem]">
+                    {product.name}
+                  </h3>
+                  <p className="text-2xl font-light mt-3 text-[#4c2a00]">
+                    {product.price} DA
+                  </p>
+                  <button className="mt-5 w-full bg-black text-white py-3 rounded-xl hover:bg-[#6f5f4b] transition font-medium">
+                    {tCarousel.viewDetails}
+                  </button>
+                </div>
+              </div>
+            </Link>
           </SwiperSlide>
         ))}
       </Swiper>
     </section>
   );
-}
+};
+
+export default ProductCarousel;

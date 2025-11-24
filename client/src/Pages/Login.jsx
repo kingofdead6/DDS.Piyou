@@ -1,13 +1,20 @@
-import { useState } from "react";
+// src/pages/admin/Login.jsx
+import { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash, FaUser, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "../../api";
+import { LanguageContext } from "../Components/context/LanguageContext";
+import { translations } from "../../translations";
 
 export default function Login() {
+  const { lang } = useContext(LanguageContext);
+  const t = translations[lang].adminLogin;
+  const isRTL = lang === "ar";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,10 +25,10 @@ export default function Login() {
 
   const validate = () => {
     const e = {};
-    if (!email.trim()) e.email = "Please enter your email.";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) e.email = "Invalid email format.";
-    if (!password) e.password = "Please enter your password.";
-    else if (password.length < 6) e.password = "Password must be at least 6 characters.";
+    if (!email.trim()) e.email = t.errorEmailRequired;
+    else if (!/^\S+@\S+\.\S+$/.test(email)) e.email = t.errorEmailInvalid;
+    if (!password) e.password = t.errorPasswordRequired;
+    else if (password.length < 6) e.password = t.errorPasswordShort;
     return e;
   };
 
@@ -38,31 +45,27 @@ export default function Login() {
           password,
         });
         const { token, usertype } = response.data;
-        console.log("Token received:", token);
+
         if (remember) {
           localStorage.setItem("token", token);
-          console.log("Token saved to localStorage");
         } else {
           sessionStorage.setItem("token", token);
-          console.log("Token saved to sessionStorage");
         }
+
         window.dispatchEvent(new Event("authChanged"));
         setErrors({});
+
+        toast.success(lang === "fr" ? "Connexion réussie !" : "تم تسجيل الدخول بنجاح!");
+
         if (usertype === "admin" || usertype === "superadmin") {
-          console.log("Navigating to /admin/dashboard");
           navigate("/admin/dashboard");
         } else {
-          console.log("Navigating to /");
           navigate("/");
         }
       } catch (error) {
-        console.error("Login error:", error);
-        setErrors({ form: error.response?.data?.message || "Login failed." });
-        toast.error(error.response?.data?.message || "Login failed.", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "dark",
-        });
+        const message = error.response?.data?.message || t.errorGeneric;
+        setErrors({ form: message });
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -70,92 +73,121 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-black via-gray-900 to-black">
-      <ToastContainer />
-      <motion.div
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md bg-[#1f2a2d]/90 backdrop-blur-md border border-[#3b82f6]/30 rounded-2xl p-6 shadow-xl"
-      >
-        <div className="text-center mb-6">
-          <div className="mx-auto w-20 h-20 rounded-full  flex items-center justify-center text-[#1e293b] text-2xl font-bold shadow-[0_0_10px_rgba(245,214,46,0.5)]">
-            <img src="https://res.cloudinary.com/dtwa3lxdk/image/upload/v1759361064/20251002_0010_Enhanced_Design_Symbol_remix_01k6h0mgarfwpb5p8s654nwy76_ywrayk.png"/>
-          </div>
-          <h1 className="mt-4 text-2xl font-bold text-[#d1d5db]">Login</h1>
-          <p className="mt-2 text-sm text-[#d1d5db]/70">Enter your credentials to continue</p>
-        </div>
-
-        {errors.form && (
-          <div className="mb-4 text-sm text-[#ec4899] text-center">{errors.form}</div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-[#d1d5db] mb-2 font-medium">Email</label>
-            <div className="relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full pr-12 pl-10 py-3 rounded-lg bg-[#1f2a2d] border ${
-                  errors.email ? "border-[#ec4899]" : "border-[#3b82f6]/40"
-                } text-white outline-none focus:border-[#f5d62e] focus:ring-2 focus:ring-[#f5d62e]/50 transition-all`}
-                placeholder="example@mail.com"
-                aria-invalid={!!errors.email}
-                aria-describedby={errors.email ? "email-error" : undefined}
-              />
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#d1d5db]/70">
-                <FaUser />
-              </div>
-            </div>
-            {errors.email && (
-              <p id="email-error" className="mt-2 text-xs text-[#ec4899]">{errors.email}</p>
-            )}
+    <>
+      <div className="min-h-screen flex items-center justify-center px-4 py-20 mt-10" dir={isRTL ? "rtl" : "ltr"}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full max-w-md"
+        >
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-5xl font-light tracking-wider text-gray-900"
+            >
+              {t.welcome}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-4 text-lg text-gray-600 font-light"
+            >
+              {t.subtitle}
+            </motion.p>
           </div>
 
-          <div>
-            <label className="block text-sm text-[#d1d5db] mb-2 font-medium">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full pr-12 pl-10 py-3 rounded-lg bg-[#1f2a2d] border ${
-                  errors.password ? "border-[#ec4899]" : "border-[#3b82f6]/40"
-                } text-white outline-none focus:border-[#f5d62e] focus:ring-2 focus:ring-[#f5d62e]/50 transition-all`}
-                placeholder="Enter your password"
-                aria-invalid={!!errors.password}
-                aria-describedby={errors.password ? "password-error" : undefined}
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-[#d1d5db]/70 hover:text-[#f5d62e]"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#d1d5db]/70">
-                <FaLock />
-              </div>
-            </div>
-            {errors.password && (
-              <p id="password-error" className="mt-2 text-xs text-[#ec4899]">{errors.password}</p>
-            )}
-          </div>
-          <motion.button
-            type="submit"
-            disabled={loading}
-            className={`cursor-pointer w-full py-3 rounded-full bg-gradient-to-r from-[#f5d62e] to-[#3b82f6] text-[#1e293b] font-bold hover:from-[#ffd83b] hover:to-[#60a5fa] transition-colors disabled:opacity-60`}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 12px rgba(245, 214, 46, 0.5)" }}
-            whileTap={{ scale: 0.95 }}
+          {/* Form Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100"
           >
-            {loading ? "Logging in..." : "Login"}
-          </motion.button>
-        </form>
-      </motion.div>
-    </div>
+            {errors.form && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-center font-medium text-sm"
+              >
+                {errors.form}
+              </motion.div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-7">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t.emailLabel}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-gray-500">
+                    <FaUser className="w-5 h-5" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full ${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} py-4 rounded-xl border ${
+                      errors.email ? "border-red-500 focus:border-red-600" : "border-gray-300 focus:border-black"
+                    } focus:outline-none focus:ring-4 focus:ring-black/10 transition-all text-lg`}
+                    placeholder={t.emailPlaceholder}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t.passwordLabel}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-gray-500">
+                    <FaLock className="w-5 h-5" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full ${isRTL ? "pr-12 pl-4" : "pl-12 pr-12"} py-4 rounded-xl border ${
+                      errors.password ? "border-red-500 focus:border-red-600" : "border-gray-300 focus:border-black"
+                    } focus:outline-none focus:ring-4 focus:ring-black/10 transition-all text-lg`}
+                    placeholder={t.passwordPlaceholder}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`cursor-pointer absolute inset-y-0 ${isRTL ? "start-0 ps-4" : "end-0 pe-4"} flex items-center text-gray-500 hover:text-gray-700 transition`}
+                    title={showPassword ? t.hidePassword : t.showPassword}
+                  >
+                    {showPassword ? <FaEyeSlash className="w-5 h-5" /> : <FaEye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">{errors.password}</p>
+                )}
+              </div>
+              {/* Submit */}
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="cursor-pointer w-full py-5 bg-black text-white text-xl font-bold rounded-2xl hover:bg-gray-900 disabled:bg-gray-400 transition-all shadow-lg"
+              >
+                {loading ? t.signingIn : t.signIn}
+              </motion.button>
+            </form>
+          </motion.div>
+        </motion.div>
+      </div>
+    </>
   );
 }

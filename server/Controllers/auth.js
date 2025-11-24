@@ -169,3 +169,11 @@ export const registerSuperAdmin = asyncHandler(async (req, res) => {
     usertype: superAdmin.usertype,
   });
 });
+
+export const updatePassword = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+  if (!user) throw new Error("User not found");
+  user.password = req.body.password;
+  await user.save();
+  res.json({ message: "Password updated" });
+});

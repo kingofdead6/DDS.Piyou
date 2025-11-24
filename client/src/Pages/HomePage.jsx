@@ -1,28 +1,42 @@
-import React from 'react'
-import Hero from '../Components/Home/Hero'
-import Categories from '../Components/Home/Categories'
-import ProductCarousel from '../Components/Home/ProductsCarousel'
-import Announcements from '../Components/Home/Announcements'
-import FAQ from '../Components/Home/FAQ'
-import ContactUs from '../Components/Home/ContactUs'
+import React, { useContext } from 'react';
+import { LanguageContext } from "../Components/context/LanguageContext";
+import { translations } from "../../translations";
+
+import Hero from '../Components/Home/Hero';
+import Categories from '../Components/Home/Categories';
+import ProductCarousel from '../Components/Home/ProductsCarousel';
+import FAQ from '../Components/Home/FAQ';
 
 const HomePage = () => {
+  const { lang } = useContext(LanguageContext);
+  const t = translations[lang].home;
+
   return (
     <div>
-        <Hero />
-         <ProductCarousel title=" Trending Products" reverse={false} />
+      <Hero />
 
-      {/* ← Left */}
-      <ProductCarousel title="Best Offers" reverse={true} />
+      <ProductCarousel 
+        titleKey="trendingProducts"   // ← correct key (camelCase, no space)
+        reverse={false} 
+        endpoint="trending" 
+      />
 
-      {/* Right → */}
-      <ProductCarousel title=" Specials " reverse={false} />
-        <Categories />
-        <Announcements />
-        <FAQ />
-        <ContactUs />
+      <ProductCarousel 
+        titleKey="bestOffers"         // ← correct key
+        reverse={true} 
+        endpoint="best-offers" 
+      />
+
+      <ProductCarousel 
+        titleKey="specialOffers"      // ← correct key (I recommend this instead of "specials")
+        reverse={false} 
+        endpoint="specials" 
+      />
+
+      <Categories />
+      <FAQ />
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

@@ -2,10 +2,12 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import authRoutes from './Routes/auth.js';
+import authRoutes from './Routes/authRoutes.js';
 import { errorHandler } from './Middleware/error.js';
 import productRoutes from './Routes/productRoutes.js';
-import categoryRoutes from './Routes/categories.js';
+import categoryRoutes from './Routes/categoriesRoutes.js';
+import deliveryAreaRoutes from './Routes/deliveryAreaRoutes.js';
+import orderRoutes from './Routes/orderRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +25,9 @@ mongoose
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/delivery-areas', deliveryAreaRoutes);
+app.use('/api/orders', orderRoutes);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
