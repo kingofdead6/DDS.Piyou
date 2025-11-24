@@ -55,12 +55,15 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen pt-28 pb-20 px-6 text-center" dir={isRTL ? "rtl" : "ltr"}>
-        <Link to="/products" className="inline-flex items-center gap-2 text-gray-600 hover:text-black mb-8">
-          <ArrowLeft size={20} /> {t.backToShop}
+      <div className="min-h-screen pt-24 pb-20 px-6 text-center bg-[#d8cfc7]" dir={isRTL ? "rtl" : "ltr"}>
+        <Link to="/products" className="inline-flex items-center gap-2 text-gray-700 hover:text-black mb-8 text-lg">
+          <ArrowLeft size={22} /> {t.backToShop}
         </Link>
-        <h1 className="text-4xl font-bold mb-10">{t.emptyCart}</h1>
-        <Link to="/products" className="text-black underline text-xl font-medium">
+        <h1 className="text-4xl md:text-5xl font-light mb-10 text-gray-900">{t.emptyCart}</h1>
+        <Link
+          to="/products"
+          className="inline-block px-8 py-4 bg-black text-white rounded-xl text-lg font-medium hover:bg-gray-900 transition"
+        >
           {t.continueShopping}
         </Link>
       </div>
@@ -68,97 +71,125 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-6" dir={isRTL ? "rtl" : "ltr"}>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-10">
-          <Link to="/products" className="text-gray-600 hover:text-black">
+    <div className="min-h-screen bg-[#d8cfc7] pt-20 pb-32 md:pb-20" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="max-w-6xl mx-auto px-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Link to="/products" className="text-gray-700 hover:text-black">
             <ArrowLeft size={28} />
           </Link>
-          <h1 className="text-4xl font-bold">
-            {t.yourCart} {t.itemsCount(totalItems)}
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            {t.yourCart} ({totalItems} {totalItems === 1 ? t.item : t.items})
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => (
               <div
                 key={`${item.productId}-${item.color}-${item.size}`}
-                className="bg-white rounded-2xl shadow-lg p-6 flex gap-6 items-center hover:shadow-xl transition-shadow"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col sm:flex-row sm:items-center gap-6 p-6 hover:shadow-xl transition-shadow"
               >
-                <Link to={`/product/${item.productId}`}>
+                {/* Product Image */}
+                <Link to={`/product/${item.productId}`} className="shrink-0">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-32 h-32 object-cover rounded-xl hover:scale-105 transition-transform"
+                    className="w-full sm:w-32 sm:h-32 h-48 object-cover rounded-xl hover:scale-105 transition-transform"
                   />
                 </Link>
 
-                <div className="flex-1 space-y-3">
-                  <h2 className="text-xl font-semibold">{item.name}</h2>
-                  <p className="text-gray-600">
-                    {t.color}: {item.color} • {t.size}: {item.size}
-                  </p>
-                  <p className="text-lg font-medium">{item.price} DA</p>
+                {/* Product Info */}
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{item.name}</h2>
+                    <p className="text-gray-600 mt-1 text-sm">
+                      {t.color}: <span className="font-medium">{item.color}</span> • {t.size}: <span className="font-medium">{item.size}</span>
+                    </p>
+                  </div>
 
+                  {/* Quantity Controls */}
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
-                      className="w-10 h-10 border border-gray-400 rounded-lg hover:bg-gray-100 transition text-xl"
+                      className="w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light"
                     >
                       −
                     </button>
-                    <span className="w-12 text-center text-lg font-medium">{item.quantity}</span>
+                    <span className="text-xl font-bold w-16 text-center">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.productId, item.color, item.size, +1)}
                       disabled={item.quantity >= item.maxQuantity}
-                      className="w-10 h-10 border border-gray-400 rounded-lg hover:bg-gray-100 transition text-xl disabled:opacity-40"
+                      className="w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light disabled:opacity-40"
                     >
                       +
                     </button>
                   </div>
-                </div>
 
-                <div className="text-right space-y-4">
-                  <p className="text-2xl font-bold text-[#2d2a26]">
-                    {(item.price * item.quantity).toLocaleString()} DA
-                  </p>
-                  <button
-                    onClick={() => removeItem(item.productId, item.color, item.size)}
-                    className="text-red-600 hover:text-red-800 font-medium underline text-sm"
-                  >
-                    {t.remove}
-                  </button>
+                  {/* Price & Remove */}
+                  <div className="flex justify-between items-end sm:items-center">
+                    <p className="text-2xl font-bold text-[#2d2a26]">
+                      {(item.price * item.quantity).toLocaleString()} DA
+                    </p>
+                    <button
+                      onClick={() => removeItem(item.productId, item.color, item.size)}
+                      className="text-red-600 hover:text-red-700 font-medium text-sm underline"
+                    >
+                      {t.remove}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 h-fit">
-            <h3 className="text-2xl font-bold mb-6">{t.orderSummary}</h3>
-            <div className="space-y-4 text-lg">
-              <div className="flex justify-between">
-                <span className="text-gray-600">{t.subtotal}</span>
-                <span className="font-medium">{subtotal.toLocaleString()} DA</span>
-              </div>
-              <div className="pt-4 border-t-2 border-gray-200">
-                <div className="flex justify-between text-2xl font-bold">
-                  <span>{t.total}</span>
-                  <span>{subtotal.toLocaleString()} DA</span>
+          {/* Order Summary - Sticky on Mobile */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 sticky top-24 lg:top-8">
+              <h3 className="text-2xl font-bold mb-6">{t.orderSummary}</h3>
+
+              <div className="space-y-5 text-lg">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t.subtotal}</span>
+                  <span className="font-semibold">{subtotal.toLocaleString()} DA</span>
+                </div>
+
+                <div className="pt-5 border-t-2 border-gray-200">
+                  <div className="flex justify-between text-2xl font-bold">
+                    <span>{t.total}</span>
+                    <span>{subtotal.toLocaleString()} DA</span>
+                  </div>
                 </div>
               </div>
+
+              <Link to="/checkout">
+                <button className="w-full mt-8 py-5 bg-black text-white text-xl font-medium rounded-xl hover:bg-gray-900 transition shadow-lg">
+                  {t.proceedToCheckout}
+                </button>
+              </Link>
+
+              <Link
+                to="/products"
+                className="block text-center mt-5 text-gray-600 hover:text-black underline font-medium"
+              >
+                {t.continueShopping}
+              </Link>
             </div>
+          </div>
+        </div>
 
+        {/* Mobile Sticky Checkout Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl p-4 md:hidden z-40">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">{t.total}</p>
+              <p className="text-2xl font-bold">{subtotal.toLocaleString()} DA</p>
+            </div>
             <Link to="/checkout">
-              <button className="w-full mt-8 py-5 bg-black text-white text-xl font-medium rounded-xl hover:bg-gray-900 transition shadow-lg">
-                {t.proceedToCheckout}
+              <button className="px-8 py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-900 transition">
+                {t.checkout}
               </button>
-            </Link>
-
-            <Link to="/products" className="block text-center mt-6 text-gray-600 hover:text-black underline font-medium">
-              {t.continueShopping}
             </Link>
           </div>
         </div>

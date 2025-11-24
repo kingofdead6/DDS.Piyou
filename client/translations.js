@@ -1,4 +1,3 @@
-// src/translations/index.js  (or translations.js — keep the path consistent)
 export const translations = {
   fr: {
     hero: {
@@ -735,7 +734,9 @@ export const translations = {
     updateFailed: "فشل التحديث",
     confirmStatusChange: "تغيير الحالة إلى \"{status}\"؟",
     errorGeneric: "حدث خطأ",
-  },
+    },
+
+    
   },
   
 };

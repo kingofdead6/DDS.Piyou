@@ -116,35 +116,56 @@ export default function FinalizeOrder() {
     }
   };
 
-  // Success Screen
-  if (!loading && localStorage.getItem("cart") === null && cartItems.length > 0) {
+  // SUCCESS SCREEN (after order placed)
+  const isSuccess = !loading && localStorage.getItem("cart") === null && cartItems.length > 0;
+
+  if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-6" dir={isRTL ? "rtl" : "ltr"}>
-        <div className="bg-white rounded-3xl shadow-2xl p-16 max-w-2xl w-full text-center">
-          <CheckCircle className="w-32 h-32 mx-auto text-green-600 mb-8" />
-          <h1 className="text-5xl font-bold text-green-600 mb-6">{t.successTitle}</h1>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-6 py-12" dir={isRTL ? "rtl" : "ltr"}>
+        <div className="bg-white rounded-3xl shadow-2xl p-10 md:p-16 max-w-2xl w-full text-center">
+          <CheckCircle className="w-28 h-28 md:w-32 md:h-32 mx-auto text-green-600 mx-auto mb-8" />
+          <h1 className="text-4xl md:text-5xl font-bold text-green-600 mb-6">{t.successTitle}</h1>
           <div 
-            className="text-xl text-gray-700 leading-relaxed"
+            className="text-lg md:text-xl text-gray-700 leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: t.successMessage
-                .replace("{store}", form.store)
-                .replace("{wilaya}", form.wilaya)
+                .replace("{store}", `<strong>${form.store}</strong>`)
+                .replace("{wilaya}", `<strong>${form.wilaya}</strong>`)
             }}
           />
-          <p className="text-gray-500 mt-12 text-lg">{t.redirecting}</p>
+          <p className="text-gray-500 mt-10 text-lg">{t.redirecting}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-6" dir={isRTL ? "rtl" : "ltr"}>
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl font-bold text-center mb-16 text-[#2d2a26]">{t.title}</h1>
+    <div className="min-h-screen bg-[#d8cfc7] pt-20 pb-32 md:pb-20 px-6" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-10 text-gray-900">{t.title}</h1>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Form */}
-          <div className="bg-white rounded-3xl shadow-2xl p-10 space-y-8">
+        {/* Mobile-Only Sticky Summary Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-black shadow-2xl p-5 md:hidden z-50">
+          <div className="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+              <p className="text-sm text-gray-600">{t.total}</p>
+              <p className="text-2xl font-bold">
+                {totalWithDelivery ? totalWithDelivery.toLocaleString() : subtotal.toLocaleString()} DA
+              </p>
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || availableWilayas.length === 0 || !form.wilaya}
+              className="px-10 py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-900 disabled:bg-gray-400 transition"
+            >
+              {loading ? t.placingOrder : t.orderNow}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-10">
+          {/* Form Card */}
+          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
             <form onSubmit={handleSubmit} className="space-y-7">
 
               <input
@@ -153,7 +174,7 @@ export default function FinalizeOrder() {
                 value={form.customerName}
                 onChange={e => setForm({ ...form, customerName: e.target.value })}
                 required
-                className="w-full px-6 py-5 border border-gray-300 rounded-xl focus:border-black outline-none text-lg"
+                className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
               />
 
               <input
@@ -162,31 +183,36 @@ export default function FinalizeOrder() {
                 value={form.phone}
                 onChange={e => setForm({ ...form, phone: e.target.value })}
                 required
-                className="w-full px-6 py-5 border border-gray-300 rounded-xl focus:border-black outline-none text-lg"
+                required
+                className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
               />
 
               <select
                 value={form.store}
                 onChange={e => setForm({ ...form, store: e.target.value, wilaya: "" })}
-                className="w-full px-6 py-5 border border-gray-300 rounded-xl focus:border-black outline-none text-lg"
+                className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
               >
-                {STORES.map(s => <option key={s} value={s}>{s}</option>)}
+                {STORES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
               </select>
 
               <div>
-                <label className="block text-lg font-semibold mb-3">
+                <label className="block text-lg font-bold mb-3">
                   {t.wilayaLabel.replace("{store}", form.store)}
                 </label>
                 {availableWilayas.length === 0 ? (
-                  <p className="text-red-600 font-medium py-6 text-center bg-red-50 rounded-xl">
-                    {t.noDelivery.replace("{store}", form.store)}
-                  </p>
+                  <div className="text-center py-10 bg-red-50 rounded-2xl">
+                    <p className="text-red-600 font-semibold text-lg">
+                      {t.noDelivery.replace("{store}", form.store)}
+                    </p>
+                  </div>
                 ) : (
                   <select
                     value={form.wilaya}
                     onChange={e => setForm({ ...form, wilaya: e.target.value })}
                     required
-                    className="w-full px-6 py-5 border border-gray-300 rounded-xl focus:border-black outline-none text-lg"
+                    className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
                   >
                     <option value="">{t.chooseWilaya}</option>
                     {availableWilayas.map(w => (
@@ -197,8 +223,8 @@ export default function FinalizeOrder() {
               </div>
 
               <div>
-                <label className="block text-lg font-semibold mb-4">{t.deliveryType}</label>
-                <div className="grid grid-cols-2 gap-6">
+                <p className="text-lg font-bold mb-5">{t.deliveryType}</p>
+                <div className="grid grid-cols-2 gap-4">
                   {["desk", "home"].map(type => (
                     <button
                       key={type}
@@ -223,63 +249,73 @@ export default function FinalizeOrder() {
                   onChange={e => setForm({ ...form, address: e.target.value })}
                   required
                   rows={4}
-                  className="w-full px-6 py-5 border border-gray-300 rounded-xl focus:border-black outline-none text-lg resize-none"
+                  className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none resize-none transition"
                 />
               )}
 
+              {/* Desktop Submit Button */}
               <button
                 type="submit"
                 disabled={loading || availableWilayas.length === 0 || !form.wilaya}
-                className="w-full py-6 bg-black text-white text-2xl font-bold rounded-2xl hover:bg-gray-900 disabled:bg-gray-400 transition shadow-2xl"
+                className="hidden md:block w-full py-6 bg-black text-white text-2xl font-bold rounded-2xl hover:bg-gray-900 disabled:bg-gray-400 transition shadow-2xl"
               >
                 {loading ? t.placingOrder : t.orderNow}
               </button>
             </form>
           </div>
 
-          {/* Summary */}
-          <div className="bg-white rounded-3xl shadow-2xl p-10">
+          {/* Order Summary Card */}
+          <div className="bg-white rounded-3xl shadow-2xl p-8">
             <h2 className="text-3xl font-bold mb-8">{t.orderSummary}</h2>
 
-            <div className="space-y-5 max-h-96 overflow-y-auto mb-8">
+            <div className="space-y-6 max-h-96 overflow-y-auto">
               {cartItems.map((item, i) => (
-                <div key={i} className="flex gap-5 pb-5 border-b last:border-0">
-                  <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-xl shadow" />
+                <div key={i} className="flex gap-5 pb-6 border-b last:border-0">
+                  <img 
+                    src={item.image}
+                    alt={item.name}
+                    className="w-24 h-24 object-cover rounded-xl shadow-md"
+                  />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-lg">{item.name}</h4>
-                    <p className="text-gray-600">{item.color} • Taille {item.size} × {item.quantity}</p>
+                    <h4 className="font-semibold text-lg line-clamp-2">{item.name}</h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      {item.color} • Taille {item.size} × {item.quantity}
+                    </p>
+                    {hasBulkItem && item.quantity > 7 && (
+                      <span className="inline-block mt-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-bold">
+                        {t.bulkOrder}
+                      </span>
+                    )}
                   </div>
-                  {hasBulkItem && item.quantity > 7 ? (
-                    <span className="text-orange-600 font-bold text-lg">{t.bulkOrder}</span>
-                  ) : (
-                    <span className="font-bold text-xl">{(item.price * item.quantity).toLocaleString()} DA</span>
-                  )}
+                  <span className="font-bold text-xl whitespace-nowrap">
+                    {(item.price * item.quantity).toLocaleString()} DA
+                  </span>
                 </div>
               ))}
             </div>
 
-            <div className="border-t-2 pt-6 space-y-5 text-xl">
-              <div className="flex justify-between">
+            <div className="mt-8 pt-8 border-t-4 border-gray-200 space-y-6">
+              <div className="flex justify-between text-xl">
                 <span className="text-gray-600">{t.subtotal}</span>
-                <span className="font-semibold">{subtotal.toLocaleString()} DA</span>
+                <span className="font-bold">{subtotal.toLocaleString()} DA</span>
               </div>
 
               {deliveryPrice !== null && (
-                <div className="flex justify-between text-green-600 font-bold">
+                <div className="flex justify-between text-green-600 font-bold text-xl">
                   <span>{t.delivery} ({form.wilaya})</span>
                   <span>{deliveryPrice} DA</span>
                 </div>
               )}
 
               {hasBulkItem ? (
-                <div className="bg-orange-50 rounded-2xl p-8 text-center">
-                  <p className="text-3xl font-bold text-orange-600">{t.bulkOrder}</p>
+                <div className="bg-orange-50 rounded-2xl p-6 text-center">
+                  <p className="text-2xl font-bold text-orange-600">{t.bulkOrder}</p>
                   <p className="text-gray-700 mt-2">{t.bulkNote}</p>
                 </div>
               ) : totalWithDelivery !== null && (
-                <div className="flex justify-between text-3xl font-bold pt-6 border-t-2">
+                <div className="flex justify-between text-3xl font-bold pt-6 border-t-4">
                   <span>{t.total}</span>
-                  <span>{totalWithDelivery.toLocaleString()} DA</span>
+                  <span className="text-[#2d2a26]">{totalWithDelivery.toLocaleString()} DA</span>
                 </div>
               )}
             </div>
