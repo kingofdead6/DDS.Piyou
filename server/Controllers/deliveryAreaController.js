@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import DeliveryArea from '../models/DeliveryArea.js';
+import DeliveryArea from '../Models/DeliveryArea.js';
 
 export const getDeliveryAreas = asyncHandler(async (req, res) => {
   const areas = await DeliveryArea.find({}).sort({ wilaya: 1, commune: 1 });
