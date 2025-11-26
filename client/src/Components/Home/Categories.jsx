@@ -15,7 +15,7 @@ export default function Categories() {
     >
       {/* Men Category */}
       <a
-        href="/category/men"
+        href="/products/men"
         className="relative w-full md:w-1/2 h-96 md:h-screen group overflow-hidden flex items-center justify-center"
       >
         <img
@@ -41,7 +41,7 @@ export default function Categories() {
 
       {/* Women Category */}
       <a
-        href="/category/women"
+        href="/products/women"
         className="relative w-full md:w-1/2 h-96 md:h-screen group overflow-hidden flex items-center justify-center"
       >
         <img

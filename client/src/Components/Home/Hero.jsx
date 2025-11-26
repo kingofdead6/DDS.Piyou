@@ -4,14 +4,17 @@ import gsap from "gsap";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { LanguageContext } from "../context/LanguageContext";
-import { translations } from "../../../translations"; 
+import { translations } from "../../../translations";
 
-export default function Hero() { 
+export default function Hero() {
   const { lang } = useContext(LanguageContext);
   const textRef = useRef(null);
-const currentLang = translations[lang] ? lang : "fr";
 
-  // Dynamic slides from translations
+  const currentLang = translations[lang] ? lang : "fr";
+  const isRTL = lang === "ar";
+
+  // ✅ Detect mobile
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const slides = (translations[currentLang].hero.slides || []).map((slide, index) => ({
     ...slide,
@@ -34,25 +37,24 @@ const currentLang = translations[lang] ? lang : "fr";
         ease: "power4.out",
       }
     );
-  }, [lang]); 
-
-  const isRTL = lang === "ar";
+  }, [lang]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative min-h-screen w-full overflow-hidden">
       <Carousel
         autoPlay
         infiniteLoop
         interval={5000}
         showThumbs={false}
         showStatus={false}
-        showArrows={true}
+        showArrows={true}      // ✅ always show arrows
         transitionTime={900}
-        swipeable={true}
-        emulateTouch={true}
+        swipeable={false}      // ❌ disable swipe everywhere
+        emulateTouch={false}   // ❌ disable touch dragging
+        stopOnHover={false}
       >
         {slides.map((slide, index) => (
-          <div key={index} className="relative h-screen w-full">
+          <div key={index} className="relative min-h-screen w-full">
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -63,7 +65,7 @@ const currentLang = translations[lang] ? lang : "fr";
 
             {/* Content */}
             <div
-              className="relative z-10 flex h-full items-center px-10 md:px-20"
+              className="relative z-10 flex h-full min-h-screen items-center px-6 md:px-20"
               style={{
                 justifyContent: isRTL ? "flex-end" : "flex-start",
                 textAlign: isRTL ? "right" : "left",
