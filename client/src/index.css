@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
-/* Global Beige Theme */
 body {
-  background-color: #f5f1e8; /* soft beige */
+  background-color: #efe5ce; 
   color: #2f2f2f;
   font-family: 'Inter', sans-serif;
 }
