@@ -183,7 +183,7 @@ export const translations = {
     adminDashboard: {
       loading: "Chargement du tableau de bord...",
       welcomeAdmin: "Bienvenue, Administrateur",
-      welcomeSuperAdmin: "Bienvenue, Super Administrateur",
+      welcomeSuperAdmin: "Bienvenue, Super Admin",
       manageOrders: "Gérer les commandes",
       manageOrdersDesc: "Voir et mettre à jour le statut des commandes",
       manageProducts: "Gérer les produits",
