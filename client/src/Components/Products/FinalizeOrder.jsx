@@ -183,7 +183,6 @@ export default function FinalizeOrder() {
                 value={form.phone}
                 onChange={e => setForm({ ...form, phone: e.target.value })}
                 required
-                required
                 className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
               />
 
