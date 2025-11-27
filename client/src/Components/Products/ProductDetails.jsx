@@ -329,27 +329,38 @@ export default function ProductDetailsPage() {
 
         {/* Mobile-First "Added to Cart" Floating Popup */}
         <div
-          className={`fixed inset-x-0 bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-500 ${
-            showAddedPopup ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
-          }`}
-        >
-          <div className="bg-black text-white px-8 py-5 rounded-full shadow-2xl flex items-center gap-4 max-w-sm mx-auto pointer-events-auto animate-bounce-once">
-            <svg className="w-14 h-14 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-            </svg>
-            <div className="flex-1 text-left">
-              <p className="font-semibold text-sm md:text-base">{t.addedToCart}</p>
-              <p className="text-xs opacity-90">{product.name}</p>
-            </div>
-            <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-md">
-              <img
-                src={product.images[0]?.image || "/placeholder.jpg"}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
+  className={`fixed inset-x-0 bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-500 ${
+    showAddedPopup ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
+  }`}
+>
+  <div className="bg-black text-white px-5 py-4 md:px-8 md:py-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 max-w-xs md:max-w-sm mx-auto pointer-events-auto animate-bounce-once">
+    {/* Checkmark Icon */}
+    <svg
+      className="w-10 h-10 md:w-14 md:h-14 flex-shrink-0"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+    </svg>
+
+    {/* Text */}
+    <div className="flex-1 text-left">
+      <p className="font-semibold text-sm md:text-base">{t.addedToCart}</p>
+      <p className="text-xs md:text-sm opacity-90 truncate">{product.name}</p>
+    </div>
+
+    {/* Product Image */}
+    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 md:border-4 border-white shadow-md flex-shrink-0">
+      <img
+        src={product.images[0]?.image || "/placeholder.jpg"}
+        alt={product.name}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  </div>
+</div>
+
       </div>
 
       <style jsx>{`
