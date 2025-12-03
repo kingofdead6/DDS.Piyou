@@ -10,7 +10,7 @@ import { translations } from "../../../translations";
 export default function Navbar() {
   const { lang, toggleLang } = useContext(LanguageContext);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userType, setUserType] = useState(null); // null | "admin" | "superadmin"
+  const [userType, setUserType] = useState(null); 
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +29,7 @@ export default function Navbar() {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUserType(decoded.usertype); // "admin" or "superadmin"
+        setUserType(decoded.usertype);
       } catch {
         setUserType(null);
       }
@@ -71,24 +71,29 @@ export default function Navbar() {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
     setUserType(null);
-    window.dispatchEvent(new Event("authChanged")); // Immediate update
+    window.dispatchEvent(new Event("authChanged")); 
     navigate("/login");
   };
 
   // Navigation items based on user role
   const normalNavItems = t.items || [];
 
-  const adminNavItems = [
-    { name: "Commandes", link: "/admin/orders" },
-    { name: "Produits", link: "/admin/products" },
-  ];
+ const adminT = translations[lang]?.adminNavbar || translations["fr"].adminNavbar;
 
-  const superadminNavItems = [
-    ...adminNavItems.slice(0, -1), // All except logout
-    { name: "Utilisateurs", link: "/admin/users" },
-    { name: "Catégories", link: "/admin/categories" },
-    { name: "Zones de livraison", link: "/admin/delivery-areas" },
-  ];
+const adminNavItems = [
+  { name: adminT.orders, link: "/admin/orders" },
+  { name: adminT.products, link: "/admin/products" },
+];
+
+const superadminNavItems = [
+  { name: adminT.dashboard, link: "/admin/dashboard" },
+  { name: adminT.orders, link: "/admin/orders" },
+  { name: adminT.products, link: "/admin/products" },
+  { name: adminT.categories, link: "/admin/categories" },
+  { name: adminT.delivery, link: "/admin/delivery-areas" },
+  { name: adminT.users, link: "/admin/users" },
+];
+
 
   const navItems =
     userType === "superadmin"
@@ -126,10 +131,11 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <ul
-            className={`hidden md:flex space-x-10 font-semibold ${
-              isRTL ? "space-x-reverse" : ""
-            } order-2`}
-          >
+  className={`hidden md:flex font-semibold order-2 ${
+    isRTL ? "space-x-reverse space-x-10 flex-row-reverse" : "space-x-10"
+  }`}
+>
+
             {navItems.map((item, i) => {
               const isActive = location.pathname === item.link;
               return (
@@ -160,15 +166,16 @@ export default function Navbar() {
           </ul>
 
           {/* Right Section */}
-          <div className={`flex items-center gap-5 ${isRTL ? "order-1" : "order-3"}`}>
+          <div className={`flex items-center ${
+    isRTL ? "order-1 gap-x-5 flex-row-reverse" : "order-3 gap-5"
+  }`}>
             {/* Language Switcher */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleLang}
-              className="bg-white/30 backdrop-blur-md px-5 py-2 rounded-full font-bold text-sm hover:bg-white/50 transition shadow-md flex items-center gap-2"
+              className="cursor-pointer bg-white/30 backdrop-blur-md px-5 py-2 rounded-full font-bold text-sm hover:bg-white/50 transition shadow-md flex items-center gap-2"
             >
-              <span>{lang === "fr" ? "AR" : "FR"}</span>
               <span className="text-xl">
                 {lang === "fr" ? "العربية" : "Français"}
               </span>

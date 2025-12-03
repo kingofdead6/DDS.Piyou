@@ -16,6 +16,14 @@ export const translations = {
       ],
       cartToast: "Ajouté au panier !",
     },
+    adminNavbar: {
+      dashboard: "Tableau de bord",
+      orders: "Commandes",
+      products: "Produits",
+      users: "Utilisateurs",
+      categories: "Catégories",
+      delivery: "Zones de livraison"
+    },
     home: {
       trendingProducts: "Produits Tendance",
       bestOffers: "Meilleures Offres",
@@ -384,6 +392,14 @@ export const translations = {
         { name: " نساء ", link: "/products/women" },
       ],
       cartToast: "تمت الإضافة إلى السلة!",
+    },
+    adminNavbar: {
+      dashboard: "لوحة التحكم",
+      orders: "الطلبات",
+      products: "المنتجات",
+      users: "المستخدمون",
+      categories: "الفئات",
+      delivery: "مناطق التوصيل"
     },
     home: {
       trendingProducts: "المنتجات الرائجة",
