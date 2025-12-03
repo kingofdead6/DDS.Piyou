@@ -155,21 +155,33 @@ export default function AdminProducts() {
   };
 
   const handleToggleVisibility = async (id, field) => {
-    try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const endpoints = {
-        showOnProductsPage: "toggle-products-page",
-        showOnTrendingPage: "toggle-trending-page",
-        showOnBestOffersPage: "toggle-best-offers-page",
-        showOnSpecialsPage: "toggle-specials-page"
-      };
-      const res = await axios.patch(`${API_BASE_URL}/products/${id}/${endpoints[field]}`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      setProducts(prev => prev.map(p => p._id === id ? res.data : p));
-      toast.success(t.visibilityUpdated);
-    } catch (err) {
-      toast.error(t.errorGeneric);
-    }
-  };
+  try {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const endpoints = {
+      showOnProductsPage: "toggle-products-page",
+      showOnTrendingPage: "toggle-trending-page",
+      showOnBestOffersPage: "toggle-best-offers-page",
+      showOnSpecialsPage: "toggle-specials-page"
+    };
+
+    const res = await axios.patch(
+      `${API_BASE_URL}/products/${id}/${endpoints[field]}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // Update products array
+    setProducts(prev => prev.map(p => p._id === id ? res.data : p));
+
+    // Update selectedProduct if it's the same product being viewed
+    setSelectedProduct(prev => prev?._id === id ? res.data : prev);
+
+    toast.success(t.visibilityUpdated);
+  } catch (err) {
+    toast.error(t.errorGeneric);
+  }
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm(t.deleteConfirm)) return;

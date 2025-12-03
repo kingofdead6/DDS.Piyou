@@ -67,7 +67,6 @@ export default function Footer() {
               >
                 @dds.piyou
               </a>
-              <p className="text-sm text-gray-400">Page principale</p>
             </li>
             <li>
               <a
@@ -78,7 +77,6 @@ export default function Footer() {
               >
                 @AB-Zone
               </a>
-              <p className="text-sm text-gray-400">Collection Homme</p>
             </li>
             <li>
               <a
@@ -89,7 +87,6 @@ export default function Footer() {
               >
                 @Tchingo Mima 2 
               </a>
-              <p className="text-sm text-gray-400">Collection Femme</p>
             </li>
           </ul>
         </div>
@@ -110,7 +107,7 @@ export default function Footer() {
               >
                 DDS.Piyou Officiel
               </a>
-              <p className="text-sm text-gray-400">Page officielle</p>
+
             </li>
             <li>
               <a
