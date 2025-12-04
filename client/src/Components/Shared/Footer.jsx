@@ -20,7 +20,7 @@ export default function Footer() {
             {/* You can replace this with your actual logo */}
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center font-black text-[#2d2a26] text-xl">
               <img
-                src="https://res.cloudinary.com/dtwa3lxdk/image/upload/v1763721586/468950233_555581560607916_1075285265882447077_n_nxe88x.jpg"
+                src="https://res.cloudinary.com/dwbjyx1bo/image/upload/v1764888332/IMG-20251204-WA0006_feaflc.jpg"
                 alt="DDS Piyou Logo"
                 className="h-12 w-auto rounded-full shadow-md"
               />

@@ -243,11 +243,11 @@ export const translations = {
     },
     adminDeliveryAreas: {
       title: "Gérer les zones de livraison",
-      subtitle: "Cliquez sur un magasin → choisissez Yalidine ou Zawar → ajoutez les wilayas",
+      subtitle: "Cliquez sur un magasin → choisissez Yalidine ou ZR Express → ajoutez les wilayas",
       store: "Magasin",
       company: "Transporteur",
       yalidine: "YALIDINE",
-      zawar: "ZAWAR",
+      zrExpress: "ZR Express",
       manageWilayas: "Gérer les wilayas desservies par ce transporteur",
       addWilaya: "Ajouter une wilaya",
       searchPlaceholder: "Rechercher une wilaya...",
@@ -272,6 +272,10 @@ export const translations = {
       deleteConfirm: "Supprimer définitivement cette wilaya ?",
       errorWilayaRequired: "La wilaya est obligatoire",
       errorGeneric: "Une erreur est survenue",
+currentCompany: "Entreprise de livraison actuelle :",
+switchConfirm: "Êtes-vous sûr de vouloir basculer ce magasin vers {company} ?",
+switchSuccess: "Basculé avec succès vers {company} !",
+
     },
     adminCategories: {
       title: "Gérer les catégories",
@@ -623,7 +627,7 @@ export const translations = {
       store: "المتجر",
       company: "شركة التوصيل",
       yalidine: "ياليدين",
-      zawar: "زوار",
+      zrExpress: "زوار",
       manageWilayas: "إدارة الولايات التي يغطيها هذا الناقل",
       addWilaya: "إضافة ولاية",
       searchPlaceholder: "البحث عن ولاية...",
@@ -648,6 +652,9 @@ export const translations = {
       deleteConfirm: "حذف هذه الولاية نهائياً؟",
       errorWilayaRequired: "الولاية مطلوبة",
       errorGeneric: "حدث خطأ",
+      currentCompany: "شركة التوصيل الحالية:",
+  switchConfirm: "هل أنت متأكد من التبديل إلى {company}؟",
+  switchSuccess: "تم التبديل إلى {company} بنجاح!",
     },
     adminCategories: {
       title: "إدارة الفئات",

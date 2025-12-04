@@ -113,7 +113,7 @@ export default function CartPage() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
-                      className="w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light"
+                      className="cursor-pointer w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light"
                     >
                       −
                     </button>
@@ -121,7 +121,7 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(item.productId, item.color, item.size, +1)}
                       disabled={item.quantity >= item.maxQuantity}
-                      className="w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light disabled:opacity-40"
+                      className="cursor-pointer w-12 h-12 rounded-xl border-2 border-gray-300 hover:border-black hover:bg-gray-50 transition text-2xl font-light disabled:opacity-40"
                     >
                       +
                     </button>
@@ -134,7 +134,7 @@ export default function CartPage() {
                     </p>
                     <button
                       onClick={() => removeItem(item.productId, item.color, item.size)}
-                      className="text-red-600 hover:text-red-700 font-medium text-sm underline"
+                      className="cursor-pointer text-red-600 hover:text-red-700 font-medium text-sm underline"
                     >
                       {t.remove}
                     </button>
@@ -164,14 +164,14 @@ export default function CartPage() {
               </div>
 
               <Link to="/checkout">
-                <button className="w-full mt-8 py-5 bg-black text-white text-xl font-medium rounded-xl hover:bg-gray-900 transition shadow-lg">
+                <button className="cursor-pointer w-full mt-8 py-5 bg-black text-white text-xl font-medium rounded-xl hover:bg-gray-900 transition shadow-lg">
                   {t.proceedToCheckout}
                 </button>
               </Link>
 
               <Link
                 to="/products"
-                className="block text-center mt-5 text-gray-600 hover:text-black underline font-medium"
+                className="cursor-pointer block text-center mt-5 text-gray-600 hover:text-black underline font-medium"
               >
                 {t.continueShopping}
               </Link>
@@ -187,7 +187,7 @@ export default function CartPage() {
               <p className="text-2xl font-bold">{subtotal.toLocaleString()} DA</p>
             </div>
             <Link to="/checkout">
-              <button className="px-8 py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-900 transition">
+              <button className="cursor-pointer px-8 py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-900 transition">
                 {t.checkout}
               </button>
             </Link>

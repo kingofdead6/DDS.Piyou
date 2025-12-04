@@ -1,37 +1,27 @@
-// models/DeliveryArea.js
+// Models/DeliveryArea.js
 import mongoose from 'mongoose';
 
 const deliveryAreaSchema = new mongoose.Schema({
-  wilaya: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  deliveryCompany: {
-    type: String,
-    enum: ['yalidine', 'zawar'],
-    required: true,
-  },
+  wilaya: { type: String, required: true, trim: true },
+
   store: {
     type: String,
     enum: ['DDS.Piyou', 'AB-Zone', 'Tchingo Mima 2'],
     required: true,
   },
-  priceHome: {
-    type: Number,
-    default: 600,
-  },
-  priceDesk: {
-    type: Number,
-    default: 700,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-}, { timestamps: true });
 
-// Index for fast lookup
-deliveryAreaSchema.index({ wilaya: 1, commune: 1, store: 1 });
+  company: {
+    type: String,
+    enum: ['yalidine', 'zr-Express'],
+    required: true,
+  },
+
+  priceHome: { type: Number, default: 600 },
+  priceDesk: { type: Number, default: 700 },
+  isActive: { type: Boolean, default: true },
+});
+
+// Make wilaya UNIQUE per store + company
+deliveryAreaSchema.index({ store: 1, company: 1, wilaya: 1 }, { unique: true });
 
 export default mongoose.model('DeliveryArea', deliveryAreaSchema);

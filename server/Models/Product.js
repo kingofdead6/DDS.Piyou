@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true, unique: true },
+  name: { type: String, required: true, trim: true },
   category: { type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'unisex'], default: 'unisex' },
   price: { type: Number, required: true, min: 0 },

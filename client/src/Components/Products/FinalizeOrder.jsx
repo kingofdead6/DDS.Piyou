@@ -37,37 +37,36 @@ export default function FinalizeOrder() {
 
   useEffect(() => {
     const fetchWilayasForStore = async () => {
-      if (!form.store) return;
+  if (!form.store) return;
 
-      try {
-        const res = await axios.get(`${API_BASE_URL}/delivery-areas`);
-        const storeAreas = res.data.filter(area => 
-          area.store === form.store && area.isActive
-        );
+  try {
+    const res = await axios.get(
+      `${API_BASE_URL}/delivery-areas?store=${form.store}`
+    );
 
-        const wilayaMap = new Map();
-        storeAreas.forEach(area => {
-          if (!wilayaMap.has(area.wilaya)) {
-            wilayaMap.set(area.wilaya, {
-              wilaya: area.wilaya,
-              priceHome: area.priceHome,
-              priceDesk: area.priceDesk,
-            });
-          }
-        });
+    const { areas, activeCompany } = res.data;
 
-        const wilayas = Array.from(wilayaMap.values()).sort((a, b) => 
-          a.wilaya.localeCompare(b.wilaya)
-        );
+    const filtered = areas
+      .filter(a => a.isActive)
+      .map(a => ({
+        wilaya: a.wilaya,
+        priceHome: a.priceHome,
+        priceDesk: a.priceDesk
+      }))
+      .sort((a, b) => a.wilaya.localeCompare(b.wilaya));
 
-        setAvailableWilayas(wilayas);
-        setForm(prev => ({ ...prev, wilaya: "" }));
-        setDeliveryPrice(null);
-      } catch (err) {
-        toast.error(lang === "fr" ? "Échec du chargement des zones" : "فشل تحميل المناطق");
-        setAvailableWilayas([]);
-      }
-    };
+    setAvailableWilayas(filtered);
+    setForm(prev => ({ ...prev, wilaya: "" }));
+    setDeliveryPrice(null);
+
+  } catch (err) {
+    toast.error(
+      lang === "fr" ? "Échec du chargement des zones" : "فشل تحميل المناطق"
+    );
+    setAvailableWilayas([]);
+  }
+};
+
 
     fetchWilayasForStore();
   }, [form.store, lang]);
@@ -121,9 +120,9 @@ export default function FinalizeOrder() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-6 py-12" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="min-h-screen flex items-center justify-center px-6 py-12" dir={isRTL ? "rtl" : "ltr"}>
         <div className="bg-white rounded-3xl shadow-2xl p-10 md:p-16 max-w-2xl w-full text-center">
-          <CheckCircle className="w-28 h-28 md:w-32 md:h-32 mx-auto text-green-600 mx-auto mb-8" />
+          <CheckCircle className="w-28 h-28 md:w-32 md:h-32 mx-auto text-green-600  mb-8" />
           <h1 className="text-4xl md:text-5xl font-bold text-green-600 mb-6">{t.successTitle}</h1>
           <div 
             className="text-lg md:text-xl text-gray-700 leading-relaxed"
@@ -140,7 +139,7 @@ export default function FinalizeOrder() {
   }
 
   return (
-    <div className="min-h-screen bg-[#d8cfc7] pt-20 pb-32 md:pb-20 px-6" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen pt-26 pb-32 md:pb-20 px-6" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-10 text-gray-900">{t.title}</h1>
 
@@ -156,7 +155,7 @@ export default function FinalizeOrder() {
             <button
               onClick={handleSubmit}
               disabled={loading || availableWilayas.length === 0 || !form.wilaya}
-              className="px-10 py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-900 disabled:bg-gray-400 transition"
+              className="cursor-pointer px-10 py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-900 disabled:bg-gray-400 transition"
             >
               {loading ? t.placingOrder : t.orderNow}
             </button>
@@ -189,7 +188,7 @@ export default function FinalizeOrder() {
               <select
                 value={form.store}
                 onChange={e => setForm({ ...form, store: e.target.value, wilaya: "" })}
-                className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
+                className="cursor-pointer w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black outline-none transition"
               >
                 {STORES.map(s => (
                   <option key={s} value={s}>{s}</option>
@@ -229,7 +228,7 @@ export default function FinalizeOrder() {
                       key={type}
                       type="button"
                       onClick={() => setForm({ ...form, deliveryType: type })}
-                      className={`py-6 rounded-2xl border-4 text-xl font-bold transition-all ${
+                      className={`cursor-pointer py-6 rounded-2xl border-4 text-xl font-bold transition-all ${
                         form.deliveryType === type
                           ? "bg-black text-white border-black"
                           : "border-gray-300 hover:border-black"
@@ -256,7 +255,7 @@ export default function FinalizeOrder() {
               <button
                 type="submit"
                 disabled={loading || availableWilayas.length === 0 || !form.wilaya}
-                className="hidden md:block w-full py-6 bg-black text-white text-2xl font-bold rounded-2xl hover:bg-gray-900 disabled:bg-gray-400 transition shadow-2xl"
+                className="cursor-pointer hidden md:block w-full py-6 bg-black text-white text-2xl font-bold rounded-2xl hover:bg-gray-900 disabled:bg-gray-400 transition shadow-2xl"
               >
                 {loading ? t.placingOrder : t.orderNow}
               </button>
