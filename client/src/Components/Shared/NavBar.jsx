@@ -81,6 +81,7 @@ export default function Navbar() {
  const adminT = translations[lang]?.adminNavbar || translations["fr"].adminNavbar;
 
 const adminNavItems = [
+  { name: adminT.dashboard, link: "/admin/dashboard" },
   { name: adminT.orders, link: "/admin/orders" },
   { name: adminT.products, link: "/admin/products" },
 ];
