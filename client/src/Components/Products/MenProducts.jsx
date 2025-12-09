@@ -18,7 +18,7 @@ export default function MenProductsPage() {
   const [loading, setLoading] = useState(true);
 
   const [selectedCategory, setSelectedCategory] = useState(t.allShoes);
-  const [maxPrice, setMaxPrice] = useState(3000);
+  const [maxPrice, setMaxPrice] = useState();
   const [selectedColor, setSelectedColor] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -39,19 +39,32 @@ export default function MenProductsPage() {
 
   useEffect(() => {
     const fetchMenProducts = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/products/featured`);
-        const menProducts = res.data.filter(p =>
-          p.showOnProductsPage === true && p.gender === "male"
-        );
-        setProducts(menProducts);
-        setFilteredProducts(menProducts);
-      } catch (err) {
-        toast.error(lang === "fr" ? "Échec du chargement" : "فشل تحميل المجموعة");
-      } finally {
-        setLoading(false);
-      }
-    };
+  try {
+    const res = await axios.get(`${API_BASE_URL}/products/featured`);
+    const menProducts = res.data.filter(p =>
+      p.showOnProductsPage === true && p.gender === "male" || p.gender === "unisex"
+    );
+    setProducts(menProducts);
+    setFilteredProducts(menProducts);
+
+    // Set maxPrice dynamically
+    const prices = menProducts.map(p => p.price);
+    const maxProductPrice = Math.max(...prices, 100000);
+    setMaxPrice(maxProductPrice);
+
+    // Filter categories to only those with products
+    const productCategories = Array.from(new Set(menProducts.map(p => p.category)));
+    const catRes = await axios.get(`${API_BASE_URL}/categories`);
+    const filteredCategories = catRes.data.filter(cat => productCategories.includes(cat.name));
+    setCategories([{ _id: "all", name: t.allShoes }, ...filteredCategories]);
+
+  } catch (err) {
+    toast.error(lang === "fr" ? "Échec du chargement" : "فشل تحميل المجموعة");
+  } finally {
+    setLoading(false);
+  }
+};
+
     fetchMenProducts();
   }, [lang]);
 
@@ -100,12 +113,12 @@ export default function MenProductsPage() {
 
   const clearFilters = () => {
     setSelectedCategory(t.allShoes);
-    setMaxPrice(3000);
+    setMaxPrice(100000);
     setSelectedColor("");
     setIsFilterOpen(false);
   };
 
-  const hasActiveFilters = selectedCategory !== t.allShoes || maxPrice < 3000 || selectedColor;
+  const hasActiveFilters = selectedCategory !== t.allShoes || maxPrice < 100000 || selectedColor;
 
   if (loading) {
     return (
@@ -137,7 +150,7 @@ export default function MenProductsPage() {
               <span className="ml-2 px-2.5 py-1 text-xs bg-black text-white rounded-full font-medium">
                 {[
                   selectedCategory !== t.allShoes,
-                  maxPrice < 3000,
+                  maxPrice < 100000,
                   !!selectedColor
                 ].filter(Boolean).length}
               </span>
@@ -181,7 +194,7 @@ export default function MenProductsPage() {
                 <input
                   type="range"
                   min="0"
-                  max="3000"
+                  max="100000"
                   step="100"
                   value={maxPrice}
                   onChange={e => setMaxPrice(Number(e.target.value))}
@@ -377,7 +390,7 @@ export default function MenProductsPage() {
                       <input
                         type="range"
                         min="0"
-                        max="3000"
+                        max="100000"
                         step="100"
                         value={maxPrice}
                         onChange={e => setMaxPrice(Number(e.target.value))}

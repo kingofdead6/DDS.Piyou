@@ -19,7 +19,7 @@ export default function WomenProductsPage() {
   const [loading, setLoading] = useState(true);
 
   const [selectedCategory, setSelectedCategory] = useState(t.allShoes);
-  const [maxPrice, setMaxPrice] = useState(3000);
+  const [maxPrice, setMaxPrice] = useState();
   const [selectedColor, setSelectedColor] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -41,20 +41,33 @@ export default function WomenProductsPage() {
 
   // Fetch WOMEN products only
   useEffect(() => {
-    const fetchWomenProducts = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/products/featured`);
-        const womenProducts = res.data.filter(p =>
-          p.showOnProductsPage === true && p.gender === "female"
-        );
-        setProducts(womenProducts);
-        setFilteredProducts(womenProducts);
-      } catch (err) {
-        toast.error(lang === "fr" ? "Échec du chargement" : "فشل تحميل المجموعة");
-      } finally {
-        setLoading(false);
-      }
-    };
+   const fetchWomenProducts = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/products/featured`);
+    const womenProducts = res.data.filter(p =>
+      p.showOnProductsPage === true && p.gender === "female" ||p.gender === "unisex"
+    );
+    setProducts(womenProducts);
+    setFilteredProducts(womenProducts);
+
+    // Set maxPrice dynamically
+    const prices = womenProducts.map(p => p.price);
+    const maxProductPrice = Math.max(...prices, 100000);
+    setMaxPrice(maxProductPrice);
+
+    // Filter categories to only those with products
+    const productCategories = Array.from(new Set(womenProducts.map(p => p.category)));
+    const catRes = await axios.get(`${API_BASE_URL}/categories`);
+    const filteredCategories = catRes.data.filter(cat => productCategories.includes(cat.name));
+    setCategories([{ _id: "all", name: t.allShoes }, ...filteredCategories]);
+
+  } catch (err) {
+    toast.error(lang === "fr" ? "Échec du chargement" : "فشل تحميل المجموعة");
+  } finally {
+    setLoading(false);
+  }
+};
+
     fetchWomenProducts();
   }, [lang]);
 
@@ -105,12 +118,12 @@ export default function WomenProductsPage() {
 
   const clearFilters = () => {
     setSelectedCategory(t.allShoes);
-    setMaxPrice(3000);
+    setMaxPrice(100000);
     setSelectedColor("");
     setIsFilterOpen(false);
   };
 
-  const hasActiveFilters = selectedCategory !== t.allShoes || maxPrice < 3000 || selectedColor;
+  const hasActiveFilters = selectedCategory !== t.allShoes || maxPrice < 100000 || selectedColor;
 
   if (loading) {
     return (
@@ -145,7 +158,7 @@ export default function WomenProductsPage() {
               <span className="ml-2 px-2.5 py-1 text-xs bg-black text-white rounded-full font-medium">
                 {[
                   selectedCategory !== t.allShoes,
-                  maxPrice < 3000,
+                  maxPrice < 100000,
                   !!selectedColor
                 ].filter(Boolean).length}
               </span>
@@ -188,7 +201,7 @@ export default function WomenProductsPage() {
                 <input
                   type="range"
                   min="0"
-                  max="3000"
+                  max="100000"
                   step="100"
                   value={maxPrice}
                   onChange={e => setMaxPrice(Number(e.target.value))}
@@ -385,7 +398,7 @@ export default function WomenProductsPage() {
                       <input
                         type="range"
                         min="0"
-                        max="3000"
+                        max="100000"
                         step="100"
                         value={maxPrice}
                         onChange={e => setMaxPrice(Number(e.target.value))}

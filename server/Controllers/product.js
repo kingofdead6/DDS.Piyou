@@ -124,8 +124,19 @@ export const createProduct = asyncHandler(async (req, res) => {
 });
 
 // Update product (admin)
+// Update product (admin)
 export const updateProduct = asyncHandler(async (req, res) => {
-  const { name, category, price, gender, availableColors, showOnProductsPage, showOnTrendingPage, showOnBestOffersPage, showOnSpecialsPage } = req.body;
+  const {
+    name,
+    category,
+    price,
+    gender,
+    availableColors,
+    showOnProductsPage,
+    showOnTrendingPage,
+    showOnBestOffersPage,
+    showOnSpecialsPage
+  } = req.body;
 
   const product = await Product.findById(req.params.id);
   if (!product) {
@@ -133,18 +144,33 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error('Product not found');
   }
 
+  // Update basic fields
   if (name) product.name = name;
   if (category) product.category = category;
   if (price !== undefined) product.price = Number(price);
   if (gender && ['male', 'female', 'unisex'].includes(gender)) product.gender = gender;
-  if (availableColors) product.availableColors = availableColors;
 
+  // Handle availableColors safely
+  if (availableColors) {
+    let parsedColors = availableColors;
+    if (typeof availableColors === 'string') {
+      try {
+        parsedColors = JSON.parse(availableColors);
+      } catch (error) {
+        res.status(400);
+        throw new Error('Invalid availableColors format');
+      }
+    }
+    product.availableColors = parsedColors;
+  }
+
+  // Toggle flags
   if (showOnProductsPage !== undefined) product.showOnProductsPage = showOnProductsPage === 'true' || showOnProductsPage === true;
   if (showOnTrendingPage !== undefined) product.showOnTrendingPage = showOnTrendingPage === 'true' || showOnTrendingPage === true;
   if (showOnBestOffersPage !== undefined) product.showOnBestOffersPage = showOnBestOffersPage === 'true' || showOnBestOffersPage === true;
   if (showOnSpecialsPage !== undefined) product.showOnSpecialsPage = showOnSpecialsPage === 'true' || showOnSpecialsPage === true;
 
-  // Handle new images
+  // Handle new images without deleting old ones if none uploaded
   if (req.files && req.files.length > 0) {
     const images = [];
     for (let i = 0; i < req.files.length; i++) {
@@ -153,12 +179,13 @@ export const updateProduct = asyncHandler(async (req, res) => {
       const imageUrl = await uploadToCloudinary(file);
       images.push({ image: imageUrl, view });
     }
-    product.images = images;
+    product.images = images; // Replace only if new images uploaded
   }
 
-  await product.save();
-  res.status(200).json(product);
+  const updatedProduct = await product.save();
+  res.status(200).json(updatedProduct);
 });
+
 
 // Toggle showOnProductsPage (admin)
 export const toggleShowOnProductsPage = asyncHandler(async (req, res) => {
